@@ -1,7 +1,7 @@
 iHeartSkipper
 =============
 
-Chrome extension that allows for infinite skips and listening to previous songs
+Chrome extension that allows for infinite skips and listening to previous songs on iHeartRadio
 
 To install: 
 
