@@ -1,0 +1,13 @@
+{
+	"manifest_version": 2,
+	"name": "iHeartInfiniSkip",
+	"description": "Reset skips in iHeartRadio",
+	"version":"1.0",
+	"content_scripts": [
+		{
+			"matches": ["http://www.iheart.com/*"],
+			"js": ["content.js"]
+		}
+	],
+	"web_accessible_resources": ["skipper.js"]
+}
