@@ -25,7 +25,6 @@ var Skipper = {
     this.currentStationId = this.readValue('nowPlaying').data.id;
     this.currentSongQueue = this.readValue('songQueue')[this.currentStationId];
     this.keys.currentSkips = 'p-station-'+this.currentStationId;
-    console.log(this.currentSong);
   },
 
   skip: function() {
@@ -40,6 +39,7 @@ var Skipper = {
   },
 
   previousSong: function() {
+    //Not working correctly yet
     var songQueue = this.readValue('songQueue');
     songQueue[this.currentStationId].unshift(this.previousSongStack.pop());
     songQueue[this.currentStationId].unshift(this.previousSongStack.pop());
