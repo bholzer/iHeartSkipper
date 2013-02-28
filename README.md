@@ -4,6 +4,7 @@ iHeartSkipper
 Chrome extension that allows for infinite skips and listening to previous songs
 
 To install: 
+
 1. Download these files and save them into a new directory
  
 2. Type in chrome://extensions in your location bar and hit enter
