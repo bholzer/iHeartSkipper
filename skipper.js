@@ -40,6 +40,7 @@ var Skipper = {
   },
 
   previousSong: function() {
+    //Not working correctly yet
     var songQueue = this.readValue('songQueue');
     songQueue[this.currentStationId].unshift(this.previousSongStack.pop());
     songQueue[this.currentStationId].unshift(this.previousSongStack.pop());
