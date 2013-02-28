@@ -25,7 +25,6 @@ var Skipper = {
     this.currentStationId = this.readValue('nowPlaying').data.id;
     this.currentSongQueue = this.readValue('songQueue')[this.currentStationId];
     this.keys.currentSkips = 'p-station-'+this.currentStationId;
-    console.log(this.currentSong);
   },
 
   skip: function() {
