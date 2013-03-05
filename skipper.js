@@ -49,7 +49,7 @@ var Skipper = {
 }
 
 $('.b-playStation, #playerPlay').click(function(){
-  setTimeout(Skipper.initialize.bind(Skipper), 200);
+  setTimeout(Skipper.initialize, 200);
 });
 $('#playerNext').click(function(){
   Skipper.skip();
