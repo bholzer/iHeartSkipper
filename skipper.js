@@ -2,6 +2,8 @@ var Skipper = {
   previousSongStack: [],
   currentStationId: '',
   currentSongQueue: [],
+  currentSong: 'END',
+  triggered: false,
   keys: {
     nowPlaying: 'p-nowPlaying',
     currentSkips: 'p-station-'+this.currentStationId,
@@ -10,7 +12,7 @@ var Skipper = {
   },
 
   initialize: function() {
-    this.update();
+    setTimeout(this.update.bind(this), 400);
   },
 
   readValue: function(key) {
@@ -25,11 +27,8 @@ var Skipper = {
     this.currentStationId = this.readValue('nowPlaying').data.id;
     this.currentSongQueue = this.readValue('songQueue')[this.currentStationId];
     this.keys.currentSkips = 'p-station-'+this.currentStationId;
-  },
 
-  skip: function() {
-    this.previousSongStack.push(this.currentSongQueue[0]);
-    this.update();
+    //Always reset skips on update
     var currentSkips = this.readValue('currentSkips');
     var overallSkips = this.readValue('overallSkips');
     overallSkips.count = 0;
@@ -38,19 +37,37 @@ var Skipper = {
     this.setValue('overallSkips', overallSkips);
   },
 
+  skip: function() {
+    if (!this.triggered) { 
+      this.previousSongStack.push(this.currentSong);
+      this.triggered = false;
+    }
+    this.currentSong = this.currentSongQueue[0];
+    this.update();
+  },
+
   previousSong: function() {
-    //Not working correctly yet
-    var songQueue = this.readValue('songQueue');
-    songQueue[this.currentStationId].unshift(this.previousSongStack.pop());
-    songQueue[this.currentStationId].unshift(this.previousSongStack.pop());
-    this.setValue('songQueue', songQueue);
-    $('#playerNext').click();
+    console.log("Previous Stack Before Back: ["+this.previousSongStack.join('.')+"]");
+    console.log("Queue Before Back: ["+this.currentSongQueue.join(',')+"]");
+    if (this.currentSong !== 'END') {
+      this.currentSongQueue.unshift(this.currentSong);
+      var target_song = this.previousSongStack.pop();
+      this.currentSongQueue.unshift(target_song);
+      var queue_obj = {};
+      queue_obj[this.currentStationId] = this.currentSongQueue;
+      this.setValue('songQueue', queue_obj);
+      this.update();
+      this.triggered = true;
+      $('#playerNext').click();
+    } else {
+      return false;
+    }
   }
 }
 
 $('.b-playStation, #playerPlay').click(function(){
-  setTimeout(Skipper.initialize, 200);
+  setTimeout(Skipper.initialize.bind(Skipper), 200);
 });
-$('#playerNext').click(function(){
+$('#playerNext').click(function(e){
   Skipper.skip();
 });
