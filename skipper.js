@@ -66,7 +66,7 @@ var Skipper = {
       this.triggered = false;
     }
     this.currentSong = this.currentSongQueue[0];
-    setTimeout(this.update.bind(this), 400);
+    setTimeout(this.update.bind(this), 2000);
   },
 
   previousSong: function() {
