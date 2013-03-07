@@ -8,13 +8,35 @@ var Skipper = {
     nowPlaying: 'p-nowPlaying',
     currentSkips: 'p-station-'+this.currentStationId,
     overallSkips: 'p-station-skips',
-    songQueue: 'p-tracks'
+    songQueue: 'p-tracks',
+    isPaused: 'p-state'
   },
 
   initialize: function() {
     setTimeout(this.update.bind(this), 400);
     this.initCSS();
     this.initEvents();
+    this.durationChecker();
+  },
+
+  durationChecker: function() {
+    setInterval(function(){
+      if (!this.readValue('isPaused')) {
+        var duration = $('.songDuration').html().split('/');
+        var current_minute = parseInt(duration[0].replace(/\s+/g,'').split(':')[0]);
+        var current_second = parseInt(duration[0].replace(/\s+/g,'').split(':')[1]);
+        var total_minute = parseInt(duration[1].replace(/\s+/g,'').split(':')[0]);
+        var total_second = parseInt(duration[1].replace(/\s+/g,'').split(':')[1]);
+        var isAlmostEnd = function() { return total_second-current_second<5}
+        if (current_minute==total_minute && isAlmostEnd()) {
+          this.triggered = true;
+          console.log('Song is nearing the end, shuffle it');
+          this.skip();
+        }
+      } else {
+        console.log('Song not playing');
+      }
+    }.bind(this), 4000);
   },
 
   readValue: function(key) {
@@ -42,12 +64,13 @@ var Skipper = {
   },
 
   skip: function() {
+    debugger
     if (!this.triggered) { 
       this.previousSongStack.push(this.currentSong);
       this.triggered = false;
     }
     this.currentSong = this.currentSongQueue[0];
-    this.update();
+    setTimeout(this.update.bind(this), 400);
   },
 
   previousSong: function() {
@@ -69,12 +92,13 @@ var Skipper = {
   initCSS: function() {
     var rewindEl = $('<input>').attr({
       'id':'playerLast',
-      'class':'playerLast'
+      'class':'playerLast',
+      'type':'button'
     }).css({
       'width':'32px',
       'height':'50px',
       'top':'8px',
-      'left':'-2px',
+      'left':'2px',
       'background-position':'-247px 0',
       '-moz-transform': 'scaleX\(-1\)',
       '-webkit-transform': 'scaleX\(-1\)',
@@ -103,6 +127,5 @@ var Skipper = {
     }.bind(this));
   }
 }
-
 Skipper.initialize();
 
