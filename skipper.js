@@ -13,6 +13,8 @@ var Skipper = {
 
   initialize: function() {
     setTimeout(this.update.bind(this), 400);
+    this.initCSS();
+    this.initEvents();
   },
 
   readValue: function(key) {
@@ -24,17 +26,19 @@ var Skipper = {
   },
 
   update: function() {
-    this.currentStationId = this.readValue('nowPlaying').data.id;
-    this.currentSongQueue = this.readValue('songQueue')[this.currentStationId];
-    this.keys.currentSkips = 'p-station-'+this.currentStationId;
+    if (this.readValue('songQueue')) {
+      this.currentStationId = this.readValue('nowPlaying').data.id;
+      this.currentSongQueue = this.readValue('songQueue')[this.currentStationId];
+      this.keys.currentSkips = 'p-station-'+this.currentStationId;
 
-    //Always reset skips on update
-    var currentSkips = this.readValue('currentSkips');
-    var overallSkips = this.readValue('overallSkips');
-    overallSkips.count = 0;
-    currentSkips.count = 0;
-    this.setValue('currentSkips', currentSkips);
-    this.setValue('overallSkips', overallSkips);
+      //Always reset skips on update
+      var currentSkips = this.readValue('currentSkips');
+      var overallSkips = this.readValue('overallSkips');
+      overallSkips.count = 0;
+      currentSkips.count = 0;
+      this.setValue('currentSkips', currentSkips);
+      this.setValue('overallSkips', overallSkips);
+    }
   },
 
   skip: function() {
@@ -47,8 +51,6 @@ var Skipper = {
   },
 
   previousSong: function() {
-    console.log("Previous Stack Before Back: ["+this.previousSongStack.join('.')+"]");
-    console.log("Queue Before Back: ["+this.currentSongQueue.join(',')+"]");
     if (this.currentSong !== 'END') {
       this.currentSongQueue.unshift(this.currentSong);
       var target_song = this.previousSongStack.pop();
@@ -62,12 +64,45 @@ var Skipper = {
     } else {
       return false;
     }
+  },
+
+  initCSS: function() {
+    var rewindEl = $('<input>').attr({
+      'id':'playerLast',
+      'class':'playerLast'
+    }).css({
+      'width':'32px',
+      'height':'50px',
+      'top':'8px',
+      'left':'-2px',
+      'background-position':'-247px 0',
+      '-moz-transform': 'scaleX\(-1\)',
+      '-webkit-transform': 'scaleX\(-1\)',
+      '-o-transform': 'scaleX\(-1\)',
+      'transform': 'scaleX\(-1\)',
+      'filter': 'FlipH',
+      '-ms-filter': '\“FlipH\”',
+    });
+    $('#playerPlay').css('left','38px');
+    $('#playerNext').css('left','98px');
+    $('.playerBtns').prepend(rewindEl);
+    $('.navLogo').css('left','-100px');
+    $('.playerBtns').css({
+      'background-image':'url\('+$('#inject').attr('bgImage')+'\)',
+      'width':'134px',
+      'left':'70px'
+    });
+  },
+
+  initEvents: function() {
+    $('#playerNext').click(function(e){
+      this.skip();
+    }.bind(this));
+    $('#playerLast').click(function(e){
+      this.previousSong();
+    }.bind(this));
   }
 }
 
-$('.b-playStation, #playerPlay').click(function(){
-  setTimeout(Skipper.initialize.bind(Skipper), 200);
-});
-$('#playerNext').click(function(e){
-  Skipper.skip();
-});
+Skipper.initialize();
+

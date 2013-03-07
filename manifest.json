@@ -9,5 +9,5 @@
       "js": ["content.js"]
     }
   ],
-  "web_accessible_resources": ["skipper.js"]
+  "web_accessible_resources": ["skipper.js", "images/player_btns.png"]
 }
