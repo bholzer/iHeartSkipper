@@ -8,8 +8,7 @@ var Skipper = {
     nowPlaying: 'p-nowPlaying',
     currentSkips: 'p-station-'+this.currentStationId,
     overallSkips: 'p-station-skips',
-    songQueue: 'p-tracks',
-    isPaused: 'p-state'
+    songQueue: 'p-tracks'
   },
 
   initialize: function() {
@@ -21,19 +20,26 @@ var Skipper = {
 
   durationChecker: function() {
     setInterval(function(){
-      if (!this.readValue('isPaused')) {
+      try {
         var duration = $('.songDuration').html().split('/');
         var current_minute = parseInt(duration[0].replace(/\s+/g,'').split(':')[0]);
         var current_second = parseInt(duration[0].replace(/\s+/g,'').split(':')[1]);
         var total_minute = parseInt(duration[1].replace(/\s+/g,'').split(':')[0]);
         var total_second = parseInt(duration[1].replace(/\s+/g,'').split(':')[1]);
-        var isAlmostEnd = function() { return total_second-current_second<5}
-        if (current_minute==total_minute && isAlmostEnd()) {
-          this.skip();
+        var minutesToSeconds = function(m,s) {return ((m*60)+s)};
+        var current_position = minutesToSeconds(current_minute, current_second);
+        var total_duration = minutesToSeconds(total_minute, total_second);
+        var isAlmostEnd = function() { return (total_duration-1)-current_position<5}
+        if (isAlmostEnd()) {
+          setTimeout(this.skip.bind(this), 4000);
         }
-      } else {
+      } catch(err) {
       }
-    }.bind(this), 4000);
+    }.bind(this), 3000);
+  },
+
+  minutesToSeconds: function(minutes, seconds) {
+    ;
   },
 
   readValue: function(key) {
@@ -49,8 +55,6 @@ var Skipper = {
       this.currentStationId = this.readValue('nowPlaying').data.id;
       this.currentSongQueue = this.readValue('songQueue')[this.currentStationId];
       this.keys.currentSkips = 'p-station-'+this.currentStationId;
-
-      //Always reset skips on update
       var currentSkips = this.readValue('currentSkips');
       var overallSkips = this.readValue('overallSkips');
       overallSkips.count = 0;
@@ -63,10 +67,11 @@ var Skipper = {
   skip: function() {
     if (!this.triggered) { 
       this.previousSongStack.push(this.currentSong);
+    } else {
       this.triggered = false;
     }
     this.currentSong = this.currentSongQueue[0];
-    setTimeout(this.update.bind(this), 2000);
+    setTimeout(this.update.bind(this), 1000);
   },
 
   previousSong: function() {
