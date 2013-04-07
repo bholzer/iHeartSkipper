@@ -38,10 +38,6 @@ var Skipper = {
     }.bind(this), 3000);
   },
 
-  minutesToSeconds: function(minutes, seconds) {
-    ;
-  },
-
   readValue: function(key) {
     return $.parseJSON(localStorage.getItem(this.keys[key]));
   },
