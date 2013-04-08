@@ -2,8 +2,11 @@ var Skipper = {
   previousSongStack: [],
   currentStationId: '',
   currentSongQueue: [],
-  currentSong: 'END',
+  currentSong: {},
   triggered: false,
+  artistSelector: 'hgroup>h2.artist>a',
+  titleSelector: 'hgroup>h1.title>a',
+  artSelector: '.playerArt>a>img',
   keys: {
     nowPlaying: 'p-nowPlaying',
     currentSkips: 'p-station-'+this.currentStationId,
@@ -12,10 +15,12 @@ var Skipper = {
   },
 
   initialize: function() {
-    setTimeout(this.update.bind(this), 400);
     this.initCSS();
     this.initEvents();
-    this.durationChecker();
+    $('.b-playStation, #playerPlay').click(function(){
+      setTimeout(this.update.bind(this), 1000);
+      this.durationChecker();  
+    }.bind(this));
   },
 
   durationChecker: function() {
@@ -46,7 +51,7 @@ var Skipper = {
     localStorage.setItem(this.keys[key], JSON.stringify(value));
   },
 
-  update: function() {
+  update: function(callback) {
     if (this.readValue('songQueue')) {
       this.currentStationId = this.readValue('nowPlaying').data.id;
       this.currentSongQueue = this.readValue('songQueue')[this.currentStationId];
@@ -57,24 +62,31 @@ var Skipper = {
       currentSkips.count = 0;
       this.setValue('currentSkips', currentSkips);
       this.setValue('overallSkips', overallSkips);
+      callback && callback();
     }
   },
 
   skip: function() {
     if (!this.triggered) { 
-      this.previousSongStack.push(this.currentSong);
+      this.previousSongStack.push($.extend(true, {}, this.currentSong));
     } else {
       this.triggered = false;
     }
-    this.currentSong = this.currentSongQueue[0];
-    setTimeout(this.update.bind(this), 1000);
+    this.currentSong.id = this.currentSongQueue[0];
+    setTimeout(function(){
+      this.update(function() {
+        if ($(this.artistSelector).html()) this.currentSong.artist = $(this.artistSelector).html();
+        if ($(this.titleSelector).html()) this.currentSong.title = $(this.titleSelector).html();
+        if ($(this.artSelector).html()) this.currentSong.albumArtUrl = $(this.artSelector).attr('src');
+      }.bind(this));
+    }.bind(this), 3000);
   },
 
   previousSong: function() {
-    if (this.currentSong !== 'END') {
-      this.currentSongQueue.unshift(this.currentSong);
+    if (!$.isEmptyObject(this.currentSong)) {
+      this.currentSongQueue.unshift(this.currentSong.id);
       var target_song = this.previousSongStack.pop();
-      this.currentSongQueue.unshift(target_song);
+      this.currentSongQueue.unshift(target_song.id);
       var queue_obj = {};
       queue_obj[this.currentStationId] = this.currentSongQueue;
       this.setValue('songQueue', queue_obj);
