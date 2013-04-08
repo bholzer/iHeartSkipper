@@ -7,6 +7,7 @@ var Skipper = {
   artistSelector: 'hgroup>h2.artist>a',
   titleSelector: 'hgroup>h1.title>a',
   artSelector: '.playerArt>a>img',
+  listTemplate: '<div id="songListWrapper"><ul id="songList"></ul></div>',
   keys: {
     nowPlaying: 'p-nowPlaying',
     currentSkips: 'p-station-'+this.currentStationId,
@@ -72,12 +73,22 @@ var Skipper = {
     } else {
       this.triggered = false;
     }
+    if (!$.isEmptyObject(this.currentSong)) {
+      var listEl = $('<li class="songItem">').append(
+        '<img src="'+this.currentSong.albumArtUrl+'"/>'
+      ).append(
+        '<span class="artist">'+this.currentSong.artist+'<span>'
+      ).append(
+        '<span class="title">'+this.currentSong.title+'<span>'
+      );
+      $('#songList').prepend(listEl);
+    }
     this.currentSong.id = this.currentSongQueue[0];
     setTimeout(function(){
       this.update(function() {
         if ($(this.artistSelector).html()) this.currentSong.artist = $(this.artistSelector).html();
         if ($(this.titleSelector).html()) this.currentSong.title = $(this.titleSelector).html();
-        if ($(this.artSelector).html()) this.currentSong.albumArtUrl = $(this.artSelector).attr('src');
+        if ($(this.artSelector).attr('src')) this.currentSong.albumArtUrl = $(this.artSelector).attr('src');
       }.bind(this));
     }.bind(this), 3000);
   },
@@ -119,12 +130,31 @@ var Skipper = {
     $('#playerPlay').css('left','38px');
     $('#playerNext').css('left','98px');
     $('.playerBtns').prepend(rewindEl);
+    $('#ihr-header').after(this.listTemplate);
+    $('#songListWrapper').css({
+      'height':'140px',
+      'background-color':'whitesmoke'
+    });
+    $('#songList').css({
+      'margin-left': '190px',
+      'height': '98%',
+      'width': '84%',
+      'border': '1px dashed rgb(153, 53, 53)'
+    });
+    $('#wrap').css('padding-top', '270px');
     $('.navLogo').css('left','-100px');
     $('.playerBtns').css({
       'background-image':'url\('+$('#inject').attr('bgImage')+'\)',
       'width':'134px',
       'left':'70px'
     });
+    $('head').append(
+      '<style type="text/css">'+
+      'li.songItem {display:inline-block; text-align:center; width:80px; vertical-align:top; margin-top:10px;}'+
+      'li.songItem>img {display:block;margin:0 auto;}'+
+      'li.songItem>span {display: block;}'+
+      '</style>'
+    );
   },
 
   initEvents: function() {
